@@ -1,5 +1,6 @@
+const express = require('express');
 const inquirer = require('inquirer');
-const cTable = require('console.table');
+/* const cTable = require('console.table'); */
 const mysql= require('mysql2');
 
 
@@ -21,7 +22,7 @@ const db = mysql.createConnection(
             type: 'list',
             message: 'What would you like to do?',
             name: 'menu',
-            choices: ['View All Employees', 'View All Jobs', 'View All Departments', 'Add Employee', 'Add Job', 'Add Department', 'EXIT']
+            choices: ['View All Employees', 'View All Jobs', 'View All Departments', 'Add Employee', 'Add Job', 'Add Department', 'Update Department', 'Update Job', 'Update Employee', 'EXIT']
 
     }) 
     .then(options => {
@@ -55,12 +56,12 @@ const db = mysql.createConnection(
                 {
                     type: 'input',
                     message: 'What is the employees first name?',
-                    name: 'firstName'
+                    name: 'first_name'
             },
             {
                     type: 'input',
                     message: 'What is the employees last name?',
-                    name: 'lastName'
+                    name: 'last_name'
         },
         {
                 type: 'input',
@@ -74,7 +75,7 @@ const db = mysql.createConnection(
         },
         ])
         .then(answers=>{
-            db.query(`insert into employee(first_name, last_name, job_id, manager_id) values(${answers.firstName}, ${answers.lastName}, ${answers.job_id}, ${answers.manager_id})`, (err, result) => {
+            db.query(`insert into employee(first_name, last_name, job_id, manager_id) values(${answers.first_name}, ${answers.last_name}, ${answers.job_id}, ${answers.manager_id})`, (err, result) => {
                 if (err) {
                     console.log(err)
                 } console.table(result);
@@ -127,8 +128,33 @@ const db = mysql.createConnection(
         })
 
   }
-})
+  else if(options.menu=='Update Department'){
+    inquirer.prompt([
+        {
+            type:'input',
+            message: 'What is the id of the department to be updated?',
+            name: 'deptID',
+
+        },
+        {
+            type: 'input',
+            message: 'What is the new department name?',
+            name: 'deptUpdate',
+        },
+    ])
+    .then(answers=>{
+        db.query(`UPDATE department WHERE department_id = (${answers.deptID}) set deparment_name = (${answers.deptUpdate})`, (err, result) => {
+            if (err) {
+                console.log(err)
+            } console.table(result);
+            menu();
+        })
+        })
+    }
+
+    })
 
     }
     menu();
-    
+
+
